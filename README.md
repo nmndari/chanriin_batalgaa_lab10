@@ -170,3 +170,29 @@ all-DU-pairs хамралт: **13/13 (100%)**. Лекцид дутуу үлдс�
 
 - **All-defs хангагдсан ч branch 100% биш:** тийм. all-defs-д 32-ын T салаанууд (throw) огт ажиллаагүй: 14/16.
 - **Branch 100% ч DU хос хамрагдаагүй үлдэж болох уу:** тийм. Жишээ: {D1, D2, P1, P2} нь 16/16 branch өгнө, гэхдээ #10 (present,35,(50,51)), #11 (present,35,(50,53)), #32 (score,49,56), #33 (score,51,54) хамрагдаагүй. Branch нь ирмэг бүрийг шалгадаг, харин DU хос нь def-ээс use хүртэлх *замыг* шалгадаг. Иймээс all-DU-pairs нь branch хамралтаас хүчтэй.
+
+## Хэсэг C: Fault seeding
+
+Мутаци бүрийг `DataFlowTargets.java` дээр шууд хийж, `mvn test` ажиллуулаад `git restore`-оор буцаасан. Гаралт: `results/mvn-test-M1.txt`, `M2.txt`, `M2-kill.txt`, `M3.txt`.
+
+| № | Мутаци | Үр дүн | Унасан тест (файлаас) |
+|---|---|---|---|
+| M1 | `streak = streak + 1` устгасан | **Баригдсан** (2 тест) | `allDefs_lowPresenceLongStreak:17 expected: <3> but was: <0>`<br>`longStreakMeetsThreshold:55 expected: <8> but was: <5>` |
+| M2 | `if (streak > best) best = streak;` → `best = present;` | **Амьд үлдсэн** (8/8 тест давсан) | — |
+| M2 + K1 | M2 хэвээр, тест нэмсэн | **Баригдсан** | `fivePresentDaysButStreakOnlyThree:69 expected: <5> but was: <8>` |
+| M3 | `int total = present + best;` нэмсэн | **Амьд үлдсэн** (бүх тест давсан) | — |
+
+**M1:** streak 0 хэвээр үлдэх тул best хэзээ ч 5 хүрэхгүй, +3 урамшуулал алга болно.
+
+**M2 яагаад all-DU-pairs-ийг давсан бэ:** best шинэчлэгдэх мөчид миний бүх тестэд best ≥ 5 эсэх нь present ба streak хоёрт адилхан гарсан. Тасралтгүй ирцтэй (P5) эсвэл тасралт нь хоёулаа 5-аас бага/их байх (D1: present=6, streak=5 → хоёулаа ≥ 5; P6: present=3, streak=2 → хоёулаа < 5) тул гаралт өөрчлөгдөөгүй. DU хос хамрагдсан гэдэг нь def-ээс use-д хүрсэн гэсэн үг, харин **буруу утга нь гаралтад нөлөөлөх** оролт байх албагүй.
+**Унагасан тест K1** `{1,1,1,0,1,1}`, thr=1: present=5 боловч хамгийн урт цуваа=3. Зөв: 5, M2: best=5 → 8.
+
+**M3 яагаад баригдаагүй вэ:** `total`-ийг хаана ч уншдаггүй тул програмын гаралт огт өөрчлөгдөхгүй — тест зөвхөн гаралтыг шалгадаг. `javac -Xlint:all` ч анхааруулаагүй. Үүнийг **статик анализ** (IDE-ийн Java compiler/JDT, SonarLint/SonarQube, PMD, SpotBugs) барина. VS Code-ийн анхааруулга (мөр 49):
+
+```
+The value of the local variable total is not used            [Java]
+Remove this unused "total" local variable.                   [sonarqube java:S1481]
+Remove this useless assignment to local variable "total".    [sonarqube java:S1854]
+```
+
+**Эцсийн хамралт** (`results/jacoco-final.csv`, `results/mvn-verify-final.txt`): 12 тест бүгд давсан, **Branch 16/16** (BRANCH_MISSED = 0), LINE_MISSED = 1 (мөр 7, далд constructor — хэвийн). `DataFlowTargets.java` Starter-аас өөрчлөгдөөгүй.

@@ -60,4 +60,12 @@ class BonusTest {
     void brokenStreakExactThreshold() {
         assertEquals(5, DataFlowTargets.bonus(new int[] {1, 1, 0, 1}, 3));
     }
+
+    // ---------- Part C: kills mutant M2 (best = present) ----------
+
+    @Test
+    @DisplayName("K1 {1,1,1,0,1,1}, thr=1 -> 5: present=5 but longest streak=3, no streak bonus (kills M2)")
+    void fivePresentDaysButStreakOnlyThree() {
+        assertEquals(5, DataFlowTargets.bonus(new int[] {1, 1, 1, 0, 1, 1}, 1));
+    }
 }
