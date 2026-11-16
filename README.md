@@ -159,14 +159,14 @@ all-DU-pairs хамралт: **13/13 (100%)**. Лекцид дутуу үлдс�
 | P5 | longStreakMeetsThreshold | {1,1,1,1,1,1}, 6 | 8 |
 | P6 | brokenStreakExactThreshold | {1,1,0,1}, 3 | 5 |
 
-**ALL-DEFS = 2 тест (D1, D2). Яагаад 1 хангалтгүй вэ:** score-ийн 49-ийн def use-д хүрэхийн тулд 51-ийг алгасах (present < threshold), 51-ийн def-д present ≥ threshold хэрэгтэй. Нэг гүйцэтгэлд хоёулаа боломжгүй тул доод тал нь 2 тест. D1 нь 49→54, 54→56, 46→41, 43-ыг, D2 нь 51→56-г хангана. Бусад бүх def эдгээр 2 тестээр use-д хүрнэ.
+**ALL-DEFS = 2 тест (D1, D2). Яагаад 1 хангалтгүй вэ:** score-ийн 49-ийн def use-д хүрэхийн тулд 51-ийг алгасах (present < threshold), 51-ийн def-д present ≥ threshold хэрэгтэй. Нэг гүйцэтгэлд хоёулаа боломжгүй тул доод тал нь 2 тест. D1 нь 49→54, 54→56, 46→41, 43-ыг, D2 нь 51→56-г хангана. Бусад бүх def эдгээр 2 тестээр use-д хүрнэ. (`mvn-verify-alldefs.txt`: Tests run: 5 = GcdTest 3 + BonusTest 2.)
 **ALL-DU-PAIRS = 8 тест** (D1, D2 + P1–P6). P6 нь D1-ийн хамарсан хосыг давхардуулдаг ч "яг threshold, тасарсан цуваа" тохиолдлыг шалгана.
 
 ### B5 — JaCoCo
 | Үе | Branch | Line missed |
 |---|---|---|
-| all-defs (`results/jacoco-alldefs.csv`) | **14/16** | 2 |
-| all-DU-pairs | **16/16** | 1 (мөр 7, далд constructor — хэвийн) |
+| all-defs (`results/jacoco-alldefs.csv`, Tests run: 5) | **14/16** | 2 |
+| эцсийн (`results/jacoco-final.csv`, Tests run: 12) | **16/16** | 1 (мөр 7, далд constructor — хэвийн) |
 
 - **All-defs хангагдсан ч branch 100% биш:** тийм. all-defs-д 32-ын T салаанууд (throw) огт ажиллаагүй: 14/16.
 - **Branch 100% ч DU хос хамрагдаагүй үлдэж болох уу:** тийм. Жишээ: {D1, D2, P1, P2} нь 16/16 branch өгнө, гэхдээ #10 (present,35,(50,51)), #11 (present,35,(50,53)), #32 (score,49,56), #33 (score,51,54) хамрагдаагүй. Branch нь ирмэг бүрийг шалгадаг, харин DU хос нь def-ээс use хүртэлх *замыг* шалгадаг. Иймээс all-DU-pairs нь branch хамралтаас хүчтэй.
@@ -177,10 +177,10 @@ all-DU-pairs хамралт: **13/13 (100%)**. Лекцид дутуу үлдс�
 
 | № | Мутаци | Үр дүн | Унасан тест (файлаас) |
 |---|---|---|---|
-| M1 | `streak = streak + 1` устгасан | **Баригдсан** (2 тест) | `allDefs_lowPresenceLongStreak:17 expected: <3> but was: <0>`<br>`longStreakMeetsThreshold:55 expected: <8> but was: <5>` |
-| M2 | `if (streak > best) best = streak;` → `best = present;` | **Амьд үлдсэн** (8/8 тест давсан) | — |
-| M2 + K1 | M2 хэвээр, тест нэмсэн | **Баригдсан** | `fivePresentDaysButStreakOnlyThree:69 expected: <5> but was: <8>` |
-| M3 | `int total = present + best;` нэмсэн | **Амьд үлдсэн** (бүх тест давсан) | — |
+| M1 | `streak = streak + 1` устгасан | **Баригдсан** (Tests run: 11, Failures: 2) | `allDefs_lowPresenceLongStreak:17 expected: <3> but was: <0>`<br>`longStreakMeetsThreshold:55 expected: <8> but was: <5>` |
+| M2 | `if (streak > best) best = streak;` → `best = present;` | **Амьд үлдсэн** (Tests run: 11, Failures: 0) | — |
+| M2 + K1 | M2 хэвээр, тест нэмсэн | **Баригдсан** (Tests run: 12, Failures: 1) | `fivePresentDaysButStreakOnlyThree:69 expected: <5> but was: <8>` |
+| M3 | `int total = present + best;` нэмсэн | **Амьд үлдсэн** (Tests run: 12, Failures: 0) | — |
 
 **M1:** streak 0 хэвээр үлдэх тул best хэзээ ч 5 хүрэхгүй, +3 урамшуулал алга болно.
 
@@ -195,4 +195,8 @@ Remove this unused "total" local variable.                   [sonarqube java:S14
 Remove this useless assignment to local variable "total".    [sonarqube java:S1854]
 ```
 
-**Эцсийн хамралт** (`results/jacoco-final.csv`, `results/mvn-verify-final.txt`): 12 тест бүгд давсан, **Branch 16/16** (BRANCH_MISSED = 0), LINE_MISSED = 1 (мөр 7, далд constructor — хэвийн). `DataFlowTargets.java` Starter-аас өөрчлөгдөөгүй.
+**Эцсийн хамралт** (`results/jacoco-final.csv`, `results/mvn-verify-final.txt`): Tests run: 12, Failures: 0, **Branch 16/16** (BRANCH_MISSED = 0), LINE_MISSED = 1 (мөр 7, далд constructor — хэвийн). `DataFlowTargets.java` Starter-аас өөрчлөгдөөгүй.
+
+## Дүгнэлт
+
+DU анализ нь branch хамралтаас илүү: branch зөвхөн ирмэг бүрийг нэг удаа дайрахыг шаарддаг бол DU хос нь утга хаана тодорхойлогдож, хаана уншигдаж байгааг *замаар* нь шалгадаг. Үүний жишээ нь {D1, D2, P1, P2} тестүүд 16/16 branch өгсөн ч 4 DU хос хамрагдаагүй үлдсэн явдал. Мөн давталтын 2 дахь эргэлтийг шаарддаг хосууд (gcd-д 4, bonus-т 41→41, 43→42) branch-д харагддаггүй. Гэхдээ DU анализ үнэтэй: def/use жагсаалт, CFG, kill, биелэшгүй хосын үндэслэлийг гараар гаргах шаардлагатай бөгөөд bonus шиг жижиг функцэд ч 35 хос гарсан. Бүх хос хамрагдсан ч алдаа баригдана гэсэн баталгаа байхгүй — M2 all-DU-pairs-ийг давж, тусгай утгатай K1 тест хэрэгтэй болсон. M3 шиг үхсэн def-ийг тест огт барьж чадахгүй, үүнд статик анализ хэрэгтэй. Хамгийн их цаг авсан алхам нь bonus-ийн DU хүснэгт (B3) — хос бүрийн def-clear зам, kill, биелэх эсэхийг шалгах байсан.
